@@ -11,6 +11,31 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install -r requirements.txt
-      - run: python -m unittest -v test_lab
-      - run: python -m py_compile lab.py probe_limit.py test_lab.py
+      - run: python -m unittest -v test_lab test_scenarios
+      - run: python -m py_compile *.py
       - run: bash -n setup.sh run-all.sh kafka-start.sh scripts/*.sh
+
+  integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: ./setup.sh
+      - name: Real local broker and emulator scenarios
+        env:
+          PYTHONUNBUFFERED: '1'
+          AWS_PROFILE: deliberately-nonexistent
+          AWS_ENDPOINT_URL: https://example.invalid
+        run: ./run-all.sh --advanced
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: synthetic-integration-results
+          path: |
+            results/*.json
+            results/**/report.json
+          if-no-files-found: ignore
+          retention-days: 7

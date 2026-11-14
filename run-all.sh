@@ -3,7 +3,7 @@ set -euo pipefail
 cd "$(dirname "$0")"
 mkdir -p results
 .venv/bin/python -c 'import sys; sys.exit("Disable PYTHONOPTIMIZE for this lab" if not __debug__ else 0)'
-.venv/bin/python -m unittest -v test_lab
+.venv/bin/python -m unittest -v test_lab test_scenarios
 # Only our dedicated containers are touched; the existing AWS Emulator is left alone.
 for name in queue-reliability-emulator queue-reliability-kafka; do
  if docker inspect "$name" >/dev/null 2>&1 && [ "$(docker inspect -f '{{.State.Running}}' "$name")" = true ]; then
@@ -18,6 +18,11 @@ trap cleanup EXIT
 ./scripts/emulator-start.sh
 .venv/bin/python lab.py sqs --count 500
 .venv/bin/python probe_limit.py
+if [ "${1:-}" = --advanced ]; then .venv/bin/python sqs_scenarios.py all; fi
 ./scripts/emulator-stop.sh
 ./kafka-start.sh
 .venv/bin/python lab.py kafka --count 500
+
+if [ "${1:-}" = --advanced ]; then .venv/bin/python kafka_scenarios.py --case all; fi
+
+.venv/bin/python record_environment.py
