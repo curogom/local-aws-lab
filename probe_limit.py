@@ -12,7 +12,7 @@ try:
   s.send_message(QueueUrl=u,MessageBody='synthetic-over-limit')
   result={'observed_limit':False,'note':'Version may have changed'}
  except s.exceptions.OverLimit as e:
-  result={'observed_limit':True,'queued_before_error':1000,'code':e.response['Error']['Code'],'message':e.response['Error']['Message'],'scope':'AWS Emulator 1.0.367 only, not actual SQS quota'}
+  result={'observed_limit':True,'queued_before_error':1000,'code':e.response['Error']['Code'],'message':e.response['Error']['Message'],'scope':'Local AWS Emulator only, not actual SQS quota; actual version recorded in environment.json'}
 finally:
  s.delete_queue(QueueUrl=u)
 pathlib.Path(__file__).with_name('results').joinpath('emulator-limit-probe.json').write_text(json.dumps(result,indent=2))

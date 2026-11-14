@@ -92,4 +92,3 @@ def bounded_stream(total=1200, capacity=64):
                 'e2e_ms': {'p50': percentile(e2e, 50), 'p95': percentile(e2e, 95), 'p99': percentile(e2e, 99)},
                 'metric_definition': 'send-admission timestamp to successful effect+ack, single host clock',
                 'timeline': timeline, 'remaining_outstanding': state['accepted'] - state['completed'], 'pass': passed}
-

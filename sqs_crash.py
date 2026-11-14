@@ -77,4 +77,3 @@ def process_crashes():
                     if process is not None and process.is_alive():
                         process.kill(); process.join()
     return {'case': 'real_process_crashes', 'boundaries': reports, 'pass': all(r['pass'] for r in reports)}
-

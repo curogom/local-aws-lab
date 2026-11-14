@@ -33,4 +33,3 @@ def queues():
 def receive(client, url):
     return client.receive_message(QueueUrl=url, WaitTimeSeconds=1, MaxNumberOfMessages=1,
                                   MessageSystemAttributeNames=['All']).get('Messages', [])
-

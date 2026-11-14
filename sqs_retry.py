@@ -50,4 +50,3 @@ def retry_and_dlq():
                     'redrive_method': 'application manual requeue after fixing synthetic failure', 'pass': passed}
         finally:
             db.close()
-
