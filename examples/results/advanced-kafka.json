@@ -1,0 +1,96 @@
+{
+  "run": "qlab-process-547d311e3b",
+  "kind": "kafka-process-scenarios",
+  "broker": "apache/kafka:4.4.0",
+  "cases": [
+    {
+      "case": "real_sigkill_after_sqlite_commit_before_offset",
+      "worker_returncode": -9,
+      "boundary": {
+        "event": "effect_committed_before_offset",
+        "id": "crash-1",
+        "partition": 0,
+        "offset": 0,
+        "effect_applied": true,
+        "monotonic_s": 94838.5794695
+      },
+      "offsets_before_kill": {
+        "committed": {
+          "0": null
+        },
+        "end": {
+          "0": 1
+        },
+        "lag": 1
+      },
+      "offsets_after_recovery": {
+        "committed": {
+          "0": 1
+        },
+        "end": {
+          "0": 1
+        },
+        "lag": 0
+      },
+      "recovery_applied": 0,
+      "recovery_duplicates": 1,
+      "stored_rows": 1,
+      "pass": true
+    },
+    {
+      "case": "concurrent_consumer_group_join_and_leave",
+      "partitions": 3,
+      "assignment_after_join": {
+        "a": [
+          2
+        ],
+        "b": [
+          0,
+          1
+        ]
+      },
+      "assignment_after_leave": [
+        0,
+        1,
+        2
+      ],
+      "a_processed": 100,
+      "b_processed": 80,
+      "a_revoke_events": 5,
+      "a_summary": {
+        "event": "summary",
+        "applied": 100,
+        "duplicates": 0,
+        "monotonic_s": 94847.881761666
+      },
+      "b_summary": {
+        "event": "summary",
+        "applied": 80,
+        "duplicates": 0,
+        "monotonic_s": 94846.871952166
+      },
+      "stored_rows": 180,
+      "input_unique_events": 180,
+      "offsets": {
+        "committed": {
+          "0": 60,
+          "1": 60,
+          "2": 60
+        },
+        "end": {
+          "0": 60,
+          "1": 60,
+          "2": 60
+        },
+        "lag": 0
+      },
+      "pass": true
+    }
+  ],
+  "limitations": [
+    "Single broker / replication factor 1",
+    "SQLite transaction only; no external side-effect guarantee",
+    "No broker failure, multi-AZ or throughput benchmark"
+  ],
+  "pass": true
+}

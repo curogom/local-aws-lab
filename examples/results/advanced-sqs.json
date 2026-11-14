@@ -1,0 +1,191 @@
+{
+  "kind": "sqs-advanced",
+  "cases": [
+    {
+      "case": "real_process_crashes",
+      "boundaries": [
+        {
+          "boundary": "before_commit",
+          "killed_exitcode": -9,
+          "rows_at_crash": 0,
+          "rows_after_restart": 1,
+          "queue_drained": true,
+          "recovery_exitcode": 0,
+          "pass": true
+        },
+        {
+          "boundary": "after_commit_before_ack",
+          "killed_exitcode": -9,
+          "rows_at_crash": 1,
+          "rows_after_restart": 1,
+          "queue_drained": true,
+          "recovery_exitcode": 0,
+          "pass": true
+        }
+      ],
+      "pass": true
+    },
+    {
+      "case": "retry_native_dlq_and_manual_repair",
+      "source_attempts": {
+        "transient": 2,
+        "poison": 3
+      },
+      "native_max_receive_count": 3,
+      "repaired_rows": 2,
+      "redrive_method": "application manual requeue after fixing synthetic failure",
+      "pass": true
+    },
+    {
+      "case": "bounded_concurrent_stream",
+      "messages": 1200,
+      "capacity": 64,
+      "accepted": 1200,
+      "completed": 1200,
+      "blocked_admissions": 50,
+      "max_outstanding": 64,
+      "stored_rows": 1200,
+      "elapsed_s": 4.37,
+      "throughput_local_msg_s": 274.57,
+      "e2e_ms": {
+        "p50": 77.97813415527344,
+        "p95": 905.7080745697021,
+        "p99": 1272.0189094543457
+      },
+      "metric_definition": "send-admission timestamp to successful effect+ack, single host clock",
+      "timeline": [
+        {
+          "elapsed_s": 0.1,
+          "outstanding": 37
+        },
+        {
+          "elapsed_s": 0.21,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 0.321,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 0.431,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 0.541,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 0.641,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 0.752,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 0.852,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 0.953,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 1.063,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 1.173,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 1.283,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 1.393,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 1.503,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 1.613,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 1.721,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 1.825,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 1.935,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 2.036,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 2.136,
+          "outstanding": 63
+        },
+        {
+          "elapsed_s": 2.237,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 2.337,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 2.439,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 2.539,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 2.639,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 2.739,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 2.84,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 2.94,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 3.04,
+          "outstanding": 64
+        },
+        {
+          "elapsed_s": 3.141,
+          "outstanding": 63
+        },
+        {
+          "elapsed_s": 3.243,
+          "outstanding": 63
+        },
+        {
+          "elapsed_s": 3.343,
+          "outstanding": 23
+        }
+      ],
+      "remaining_outstanding": 0,
+      "pass": true
+    }
+  ],
+  "pass": true
+}
