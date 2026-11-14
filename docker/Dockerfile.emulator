@@ -1,0 +1,8 @@
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023-minimal
+RUN arch="$(uname -m)"; case "$arch" in aarch64|x86_64) ;; *) exit 1;; esac \
+ && curl -fsSL "https://downloads.aws.com/aws-emulator/packages/aws-emulator/LTS/latest/aws-emulator-${arch}.rpm" -o /tmp/emulator.rpm \
+ && rpm -i /tmp/emulator.rpm && rm /tmp/emulator.rpm \
+ && mkdir -p /home/emulator && chown 1000 /home/emulator
+USER 1000
+ENV HOME=/home/emulator EMULATOR_TELEMETRY=off
+ENTRYPOINT ["aws-emulator", "-b", "0.0.0.0", "-p", "9298", "--telemetry", "off"]

@@ -1,0 +1,9 @@
+.venv/
+__pycache__/
+*.sqlite*
+.runtime/
+results/
+.library*/
+*.zip
+.DS_Store
+docs/blog-draft.md
