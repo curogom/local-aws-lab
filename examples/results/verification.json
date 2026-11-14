@@ -1,0 +1,24 @@
+{
+  "date": "2026-11-15 KST",
+  "environment": {
+    "os": "macOS",
+    "architecture": "arm64",
+    "python": "3.14.6",
+    "docker_vm_cpu": 2,
+    "docker_vm_memory_gib": 4,
+    "aws_emulator": "1.0.367",
+    "kafka": "4.4.0"
+  },
+  "checks": {
+    "unit_tests": 3,
+    "clean_source_copy_fresh_venv": true,
+    "full_run_exit_code": 0,
+    "invalid_external_aws_profile_and_endpoint_ignored": true,
+    "existing_emulator_9297_left_running": true
+  },
+  "limits": [
+    "No production AWS calls",
+    "No benchmark or forced OS kill",
+    "CI covers unit and syntax checks only"
+  ]
+}

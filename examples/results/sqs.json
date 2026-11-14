@@ -1,0 +1,61 @@
+{
+  "run": "qlab-c79d43e488",
+  "kind": "sqs",
+  "scope": "AWS Emulator local functional test",
+  "cases": [
+    {
+      "case": "visibility_expiry_redelivery",
+      "pass": true
+    },
+    {
+      "case": "native_dlq_redrive",
+      "pass": true,
+      "source_deliveries": 2,
+      "note": "Native broker redrive, not application-side copy"
+    },
+    {
+      "case": "commit_before_ack_recovery",
+      "pass": true,
+      "note": "Crash boundary simulated; no OS kill"
+    },
+    {
+      "case": "worker_scaling",
+      "workers": 1,
+      "input_messages": 550,
+      "unique_documents": 500,
+      "stored_rows": 500,
+      "applied": 500,
+      "duplicates": 50,
+      "pass": true,
+      "elapsed_s_including_drain_wait": 2.493,
+      "messages_per_s_local": 220.61,
+      "handler_ack_p95_ms": 0.742
+    },
+    {
+      "case": "worker_scaling",
+      "workers": 2,
+      "input_messages": 550,
+      "unique_documents": 500,
+      "stored_rows": 500,
+      "applied": 500,
+      "duplicates": 50,
+      "pass": true,
+      "elapsed_s_including_drain_wait": 2.317,
+      "messages_per_s_local": 237.37,
+      "handler_ack_p95_ms": 1.105
+    },
+    {
+      "case": "worker_scaling",
+      "workers": 4,
+      "input_messages": 550,
+      "unique_documents": 500,
+      "stored_rows": 500,
+      "applied": 500,
+      "duplicates": 50,
+      "pass": true,
+      "elapsed_s_including_drain_wait": 2.362,
+      "messages_per_s_local": 232.84,
+      "handler_ack_p95_ms": 2.79
+    }
+  ]
+}

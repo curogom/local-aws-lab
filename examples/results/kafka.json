@@ -1,0 +1,37 @@
+{
+  "run": "qlab-e734eb5635",
+  "kind": "kafka",
+  "broker": "apache/kafka:4.4.0",
+  "scope": "single broker local reliability test, replication factor 1",
+  "input_messages": 550,
+  "unique_documents": 500,
+  "first_effect_before_uncommitted_restart": 1,
+  "applied_after_restart": 499,
+  "duplicates_suppressed": 51,
+  "stored_rows": 500,
+  "partition_records": {
+    "2": 203,
+    "0": 167,
+    "1": 180
+  },
+  "committed_offsets": {
+    "1": 180,
+    "2": 203,
+    "0": 167
+  },
+  "end_offsets": {
+    "2": 203,
+    "0": 167,
+    "1": 180
+  },
+  "lag_after_commit": 0,
+  "independent_group_replay": 550,
+  "seek_replay": 550,
+  "elapsed_s_including_wait_and_replays": 8.505,
+  "pass": true,
+  "limitations": [
+    "Consumer restart rather than forced process kill",
+    "No rebalance test, replication failover or multi-AZ test",
+    "Synthetic SQLite effect, not external business transaction"
+  ]
+}
