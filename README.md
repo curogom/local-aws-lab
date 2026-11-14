@@ -113,3 +113,5 @@ Retry/DLQ에서 실패 메시지를 수리한 후 재전송하는 단계는 앱�
 고급 시나리오 결과는 `results/sqs-advanced-*.json`, `results/qlab-process-*/report.json`에 저장됩니다.
 CI는 Linux/Python3.12에서 실제 Docker 통합을 실행하고 합성 JSON만 artifact로 보관합니다.
 데이터량 1,200건은 단일 에뮬레이터의 순간 적재 한도를 넘겨 스트리밍한 기능 실험일 뿐, 상용 대용량 처리 성능의 증거가 아닙니다.
+
+SQS의 `before_commit` 경계는 INSERT 호출 전(effect 시작 전)입니다. 열린 미커밋 DB 트랜잭션의 rollback을 검증한 것은 아닙니다. 실패 시 Python 예외와 CI console 로그를 확인하세요. JSON report는 성공 경로 중심이며 child 상세 로그는 로컬 results 폴더에만 남습니다.
