@@ -16,5 +16,17 @@ class SafetyTest(unittest.TestCase):
   self.assertIn("aws_access_key_id=section['aws_access_key_id']",source)
   self.assertIn("verify=str(runtime/'ca.pem')",source)
   self.assertNotIn('assert ',source)
+ def test_existing_aws_profile_is_not_used(self):
+  import os, lab
+  from unittest.mock import patch
+  with tempfile.TemporaryDirectory() as tmp:
+   root=pathlib.Path(tmp); runtime=root/'.runtime'/'emulator'/'9298';runtime.mkdir(parents=True)
+   (runtime/'emulator_credentials').write_text('[default]\naws_access_key_id=local-test\naws_secret_access_key=local-test\n')
+   with patch.object(lab,'ROOT',root), patch.dict(os.environ,{'AWS_PROFILE':'nonexistent-test-profile','AWS_ENDPOINT_URL':'https://example.invalid','AWS_EC2_METADATA_DISABLED':'true'}):
+    client=lab.sqs_client()
+    self.assertEqual(client.meta.endpoint_url,'https://127.0.0.1:9298')
+    self.assertEqual(client._request_signer._credentials.access_key,'local-test')
+    client.close()
 if __name__=='__main__': unittest.main()
+
 

@@ -1,4 +1,5 @@
 """Local-only reliability experiments, NOT a cloud throughput benchmark."""
+if not __debug__: raise RuntimeError('Run this test lab without -O/PYTHONOPTIMIZE')
 import argparse, collections, concurrent.futures, json, os, pathlib, sqlite3, statistics, time, uuid
 ROOT=pathlib.Path(__file__).resolve().parent
 RESULTS=ROOT/'results'
@@ -16,7 +17,8 @@ def apply(db, event):
     return c.rowcount==1
 
 def sqs_client():
-    import boto3
+    import boto3, botocore.session
+    from botocore.config import Config
     import configparser
     # Explicit local credentials avoid AWS profiles, environment secrets and metadata.
     runtime=ROOT/'.runtime'/'emulator'/'9298'
@@ -24,11 +26,15 @@ def sqs_client():
     if not cfg.read(runtime/'emulator_credentials'):
         raise RuntimeError('Start the dedicated lab emulator first: ./scripts/emulator-start.sh')
     section=cfg['default']
-    return boto3.session.Session().client(
+    core=botocore.session.get_session()
+    store=core.get_component('config_store')
+    for name,value in [('profile',None),('config_file',os.devnull),('credentials_file',os.devnull)]:
+        store.set_config_variable(name,value)
+    return boto3.session.Session(botocore_session=core).client(
         'sqs',endpoint_url='https://127.0.0.1:9298',region_name='us-east-1',
         aws_access_key_id=section['aws_access_key_id'],
         aws_secret_access_key=section['aws_secret_access_key'],
-        verify=str(runtime/'ca.pem'))
+        verify=str(runtime/'ca.pem'),config=Config(proxies={}))
 
 def sqs_run(n):
     RESULTS.mkdir(exist_ok=True)

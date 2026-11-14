@@ -2,6 +2,7 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 mkdir -p results
+.venv/bin/python -c 'import sys; sys.exit("Disable PYTHONOPTIMIZE for this lab" if not __debug__ else 0)'
 .venv/bin/python -m unittest -v test_lab
 # Only our dedicated containers are touched; the existing AWS Emulator is left alone.
 for name in queue-reliability-emulator queue-reliability-kafka; do

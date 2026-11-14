@@ -1,4 +1,5 @@
 """Reproduce the observed emulator-only queue capacity limit with synthetic payloads."""
+if not __debug__: raise RuntimeError('Run this test lab without -O/PYTHONOPTIMIZE')
 import json, pathlib, uuid
 from lab import sqs_client, RESULTS
 RESULTS.mkdir(exist_ok=True)
