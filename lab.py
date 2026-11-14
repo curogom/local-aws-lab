@@ -58,10 +58,13 @@ def sqs_run(n):
         # Failure after a committed effect and before queue acknowledgement.
         u=q('crash',VisibilityTimeout=1); db=ledger(ROOT/'results'/f'{run}-crash.sqlite')
         e={'id':'crash-1','text':'synthetic'}; s.send_message(QueueUrl=u,MessageBody=json.dumps(e))
-        msg=recv(u)[0]; assert apply(db,json.loads(msg['Body']))
+        msg=recv(u)[0]; applied=apply(db,json.loads(msg['Body']))
+        if not applied: raise RuntimeError('First effect was not applied')
         # Simulate process loss by closing state and deliberately not deleting.
         db.close(); time.sleep(1.5); msg=recv(u)[0]; db=ledger(ROOT/'results'/f'{run}-crash.sqlite')
-        assert not apply(db,json.loads(msg['Body'])); s.delete_message(QueueUrl=u,ReceiptHandle=msg['ReceiptHandle'])
+        duplicate_applied=apply(db,json.loads(msg['Body']))
+        if duplicate_applied: raise RuntimeError('Duplicate effect was applied')
+        s.delete_message(QueueUrl=u,ReceiptHandle=msg['ReceiptHandle'])
         report['cases'].append({'case':'commit_before_ack_recovery','pass':db.execute('SELECT count(*) FROM results').fetchone()[0]==1,'note':'Crash boundary simulated; no OS kill'})
         db.close()
         for workers in [1,2,4]:
@@ -104,7 +107,9 @@ def kafka_run(n):
     def consumer(g):
         return KafkaConsumer(topic,bootstrap_servers=endpoint,group_id=g,enable_auto_commit=False,auto_offset_reset='earliest',value_deserializer=lambda b:json.loads(b),consumer_timeout_ms=3000,request_timeout_ms=20000,session_timeout_ms=10000)
     c=consumer(group); dbpath=ROOT/'results'/f'{run}.sqlite'; db=ledger(dbpath)
-    first=next(c); assert apply(db,first.value); c.close(autocommit=False); db.close()
+    first=next(c); applied=apply(db,first.value)
+    if not applied: raise RuntimeError('First Kafka effect was not applied')
+    c.close(autocommit=False); db.close()
     # Broker group committed offset was never advanced. Restart consumes record again.
     c=consumer(group); db=ledger(dbpath); counts=collections.Counter(); start=time.perf_counter(); partitions=collections.Counter()
     for msg in c:
