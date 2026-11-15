@@ -1,0 +1,74 @@
+{
+  "scope": "local S3 functional test; sequential application retries",
+  "bucket": "part2-b73fa30a31f3",
+  "endpoint": "https://127.0.0.1:9298",
+  "cases": [
+    {
+      "case": "crud_readback",
+      "pass": true,
+      "sha256": "49648fa64268aac07402f40c3b05b8205e4c6eba0629ee99fcdbfd0c41bb7dc3",
+      "byte_count": 25
+    },
+    {
+      "case": "delete_then_head",
+      "pass": true,
+      "status": 404
+    },
+    {
+      "case": "presigned_put_readback",
+      "pass": true,
+      "status": 200,
+      "note": "Transfer compatibility only; not IAM, signature enforcement, expiry or CORS validation"
+    },
+    {
+      "case": "same_key_overwrite",
+      "pass": true
+    },
+    {
+      "case": "same_request_same_body",
+      "pass": true
+    },
+    {
+      "case": "same_request_different_body",
+      "pass": true
+    },
+    {
+      "case": "before_read",
+      "pass": true,
+      "attempt": 3,
+      "objects_before_retry": 0,
+      "input_key": "inputs/failure-0.txt",
+      "output_key": "outputs/b59f35fe4d76517614c732a12c20fb871146799acce8721000d917aca1b33a33-v1.json",
+      "input_sha256": "49648fa64268aac07402f40c3b05b8205e4c6eba0629ee99fcdbfd0c41bb7dc3",
+      "output_sha256": "456b60237f0947191a3d2c59f6ceb0f4130bfcc8d83fe7918894bdb6f69811c5",
+      "note": "Injected Python exception; not SIGKILL or network-disconnect test"
+    },
+    {
+      "case": "after_read_before_write",
+      "pass": true,
+      "attempt": 3,
+      "objects_before_retry": 0,
+      "input_key": "inputs/failure-1.txt",
+      "output_key": "outputs/70a987aff4eea4f5c573b712bcae3cfdf6c434ed44703e2d6c822715feeef73b-v1.json",
+      "input_sha256": "49648fa64268aac07402f40c3b05b8205e4c6eba0629ee99fcdbfd0c41bb7dc3",
+      "output_sha256": "c8168d37d35caf81bfee622f9bf88d269079b16b5516d58d12f58e3e4f8c4c7b",
+      "note": "Injected Python exception; not SIGKILL or network-disconnect test"
+    },
+    {
+      "case": "after_write_before_response",
+      "pass": true,
+      "attempt": 3,
+      "objects_before_retry": 1,
+      "input_key": "inputs/failure-2.txt",
+      "output_key": "outputs/6098f5db993545271a67a9bdbabb846c6d9e9b325465c57e2318c00bdc2ecd5e-v1.json",
+      "input_sha256": "49648fa64268aac07402f40c3b05b8205e4c6eba0629ee99fcdbfd0c41bb7dc3",
+      "output_sha256": "2e85b572d88f1a2a890219ce5ba5d65df0b9ee30b748121d657cd2df453e1369",
+      "note": "Injected Python exception; not SIGKILL or network-disconnect test"
+    },
+    {
+      "case": "input_mutation_rejected",
+      "pass": true
+    }
+  ],
+  "cleanup": true
+}
