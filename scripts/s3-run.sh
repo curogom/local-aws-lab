@@ -10,3 +10,4 @@ fi
 trap './scripts/emulator-stop.sh' EXIT
 ./scripts/emulator-start.sh
 .venv/bin/python s3_pipeline.py
+.venv/bin/python s3_crash_probe.py

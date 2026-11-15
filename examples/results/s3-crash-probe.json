@@ -1,0 +1,24 @@
+{
+  "scope": "real child SIGKILL after completed S3 requests; not in-flight network loss",
+  "cases": [
+    {
+      "case": "after_read_before_write",
+      "pass": true,
+      "child_returncode": -9,
+      "retry_process_returncode": 0,
+      "objects_before_retry": 0,
+      "objects_after_retry": 1,
+      "output_sha256": "319432bc4fe4b13e34d3bdee068ef6bc0a70be9e80c4c1514f3c01c5fbc04e94"
+    },
+    {
+      "case": "after_write_before_response",
+      "pass": true,
+      "child_returncode": -9,
+      "retry_process_returncode": 0,
+      "objects_before_retry": 1,
+      "objects_after_retry": 1,
+      "output_sha256": "674c4333858d7358fdf8631974b294319c310378e414cd1df627f72f2509769e"
+    }
+  ],
+  "cleanup": true
+}

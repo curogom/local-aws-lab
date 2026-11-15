@@ -19,6 +19,7 @@ trap cleanup EXIT
 .venv/bin/python lab.py sqs --count 500
 .venv/bin/python probe_limit.py
 .venv/bin/python s3_pipeline.py
+.venv/bin/python s3_crash_probe.py
 if [ "${1:-}" = --advanced ]; then .venv/bin/python sqs_scenarios.py all; fi
 ./scripts/emulator-stop.sh
 ./kafka-start.sh

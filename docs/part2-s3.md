@@ -32,7 +32,7 @@ Three processing failure cases each invoke the function once with an injected ex
 
 ## Boundaries and limits
 
-- The failure mechanism is a **Python exception**, not process SIGKILL, an in-flight HTTP disconnect, or a power failure. The after-write case models losing the application completion response after a successful S3 write.
+- The original 10-case harness uses **Python exceptions**. The additional `s3_crash_probe.py` sends real SIGKILL to its own child process after a completed read or write, then retries in a fresh process. Neither harness tests in-flight HTTP disconnection, emulator failure, or a power failure. The after-write case loses the application completion response after a successful S3 write.
 - Rewriting one deterministic object proves convergence for this fixture, not a single execution or no duplicate side effects. Versioned buckets are not tested.
 - Upload's GET-before-PUT check is sequential and **not atomic**. It does not prevent two workers racing on the same request ID. The hash expectation is caller-provided test state, not a durable ledger. Part 3 addresses ownership/state separately.
 - The processor accepts small UTF-8 text fixtures only. Size and SHA-256 are checked in the harness; production MIME validation, upload limits, malware scanning, streaming large files, multipart and browser CORS are not covered.
@@ -51,3 +51,18 @@ No screenshots have yet been taken for Part 2. Reports are synthetic observation
 ## Verification record
 
 On 2026-11-16 KST (2026-11-15 UTC), the modified working tree based on `23ad6b1` passed `./run-all.sh --advanced`, including the existing SQS/Kafka scenarios and the new 10-case S3 harness. Final unit suite: 12 passing tests (7 S3 + 5 existing). Python compilation, Bash syntax, and `git diff --check` passed. Runtime: Darwin ARM64, Python 3.14.6, boto3/botocore 1.44.3, Kafka 4.4.0, AWS Emulator 1.0.367. The runner used deliberately invalid AWS profile/endpoint environment variables to check local isolation. This is local evidence; CI for these new commits has not run because nothing has been pushed.
+
+## Independent rerun and process-crash validation
+
+The standalone documented command `./scripts/s3-run.sh` was rerun with an invalid `AWS_PROFILE` and cloud endpoint override; all 10 S3 cases passed again. The runner now additionally executes `s3_crash_probe.py`. Its two synthetic cases passed against the isolated local emulator:
+
+| Real process boundary | Child exit | Objects before restart | Fresh retry exit | Final objects |
+|---|---|---|---|---|
+| Completed GET, before processing/write | SIGKILL (-9) | 0 | 0 | 1 |
+| Completed PUT, before function returns | SIGKILL (-9) | 1 | 0 | 1 |
+
+The parent checks the actual signal return code, observes S3 before retry, starts a new Python process for retry, and compares output bytes/hash with a subsequent normal invocation. The already-written result stays byte-identical in the post-write crash case. This is convergence after a real worker crash, not exactly-once execution. The emulator itself remains running throughout the crash test. No forced termination is sent to an unrelated process.
+
+`results/s3-crash-probe.json` records the observations; `examples/results/s3-crash-probe.json` is the captured passing result. The random synthetic bucket is removed by the parent after both cases. The standalone runner then stops its dedicated 9298 instance. The existing 9297 instance remains running. These observations extend the earlier exception-only scope; they do not establish production durability or network-fault behavior.
+
+The expanded `./run-all.sh --advanced` also passed on 2026-11-15 at 15:10 UTC (2026-11-16 KST), including both SIGKILL cases, existing SQS/Kafka scenarios and all 12 unit tests. This rerun used the already-installed virtual environment and Docker build cache, not a clean-machine installation. No remote CI or cloud AWS execution was performed.
