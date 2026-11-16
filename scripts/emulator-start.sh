@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+. "$(dirname "$0")/session.sh"
 cd "$(dirname "$0")/.."
 mkdir -p .runtime/emulator results
 if docker inspect queue-reliability-emulator >/dev/null 2>&1; then

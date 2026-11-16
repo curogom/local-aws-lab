@@ -121,9 +121,13 @@ def presigned_put(url, body):
         with opener.open(request, timeout=5) as response:
             return response.status
     except urllib.error.HTTPError as exc:
-        raise RuntimeError(f'Local presigned PUT failed with HTTP {exc.code}') from None
+        status = exc.code
+        exc.close()
+        raise RuntimeError(f'Local presigned PUT failed with HTTP {status}') from None
     except urllib.error.URLError:
         raise RuntimeError('Local presigned PUT transport failed') from None
+    except TimeoutError:
+        raise RuntimeError('Local presigned PUT timed out') from None
 
 
 def run():
@@ -204,6 +208,11 @@ def run():
                         s3.delete_object(Bucket=bucket, Key=item['Key'])
                 s3.delete_bucket(Bucket=bucket)
                 report['cleanup'] = True
+        except Exception as exc:
+            report['cleanup_error_type'] = type(exc).__name__
+            # Keep the original processing failure, but fail a successful run if cleanup fails.
+            if 'error_type' not in report:
+                raise
         finally:
             (ROOT / 'results').mkdir(exist_ok=True)
             (ROOT / 'results/s3-pipeline.json').write_text(json.dumps(report, indent=2) + '\n')

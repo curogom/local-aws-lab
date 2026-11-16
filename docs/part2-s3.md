@@ -38,6 +38,9 @@ Three processing failure cases each invoke the function once with an injected ex
 - The processor accepts small UTF-8 text fixtures only. Size and SHA-256 are checked in the harness; production MIME validation, upload limits, malware scanning, streaming large files, multipart and browser CORS are not covered.
 - Presigned success proves transfer compatibility in this emulator, not IAM, signature enforcement or expiry security. Do not copy this fixture into production unchanged.
 - Cleanup deletes only the newly created random-prefix bucket and its own synthetic objects. Report `cleanup: true` means this cleanup returned successfully.
+- Fault unit tests simulate HTTP 503, transport/read timeouts, failed writes and a completed write with a lost response. They check error propagation, stream closure, retry convergence, and that failed cleanup cannot turn a run into success. These are deterministic doubles, not an actual network-disconnection experiment.
+- Shell entry points share a per-user advisory lock across checkouts using the same cache directory. Competing runners and scripted stop commands fail before touching containers. Direct Python or Docker commands do not participate in this lock.
+- Both S3 reports record `cleanup_error_type` without error messages if cleanup fails. An earlier processing error remains the primary exception; a cleanup failure alone raises an error.
 
 ## Sources
 
@@ -70,3 +73,9 @@ The expanded `./run-all.sh --advanced` also passed on 2026-11-15 at 15:10 UTC (2
 ## Emulator version refresh
 
 On 2026-11-16 UTC, the first public CI run at `572cc1c` passed the unit job but stopped before integration scenarios because official LTS/latest had changed from 1.0.367 to 1.0.385. The version guard correctly rejected this drift. A fresh ARM64 image was built from the official package, and `EXPECTED_EMULATOR_VERSION=1.0.385 ./run-all.sh --advanced` passed locally, including all 12 unit tests, S3 basic and real SIGKILL probes, and SQS/Kafka scenarios. The default expected version was then updated to 1.0.385. Earlier sample results remain historical 1.0.367 evidence; this change does not make the latest download immutable.
+
+## Failure-path regression coverage
+
+On 2026-11-16 at 13:38 UTC, the modified working tree based on `a88b665` passed `./run-all.sh --advanced` in 79.8 seconds on the ARM64 Mac mini. All **29 unit/regression tests** passed (5 existing core tests, 15 S3 tests, 9 shell-runner tests), followed by the S3 10-case harness, both real SIGKILL probes, and all existing SQS/Kafka basic and advanced scenarios. Python compilation, Bash syntax, and `git diff --check` also passed. The run used an invalid AWS profile and endpoint override, the installed virtual environment and cached Docker images; it was not a clean-install test.
+
+The runner tests execute the actual entry scripts with deterministic Docker/workload doubles. They cover overlapping full/S3 runs, a competing checkout and scripted stop commands, lock release, foreign/preexisting containers, partial startup, inspection failure, and cleanup failure with and without a primary error. HTTP error responses are now closed; presigned timeouts are redacted. Both S3 harnesses retain the original error when bucket cleanup also fails and record the cleanup error type. The dedicated emulator was removed and Kafka stopped after the full run; the always-on 9297 emulator retained its original container ID and start time. Actual in-flight network faults and immutable emulator package pinning remain outside this verification.

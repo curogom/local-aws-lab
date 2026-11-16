@@ -1,5 +1,6 @@
-#!/bin/sh
-set -eu
+#!/bin/bash
+set -euo pipefail
+. "$(dirname "$0")/scripts/session.sh"
 if docker inspect queue-reliability-kafka >/dev/null 2>&1; then
  test "$(docker inspect -f '{{ index .Config.Labels "queue-reliability-lab" }}' queue-reliability-kafka)" = true || { echo 'Container name is not owned by this lab.' >&2; exit 1; }
  docker start queue-reliability-kafka

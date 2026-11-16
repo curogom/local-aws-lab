@@ -79,6 +79,10 @@ def run():
                         s3.delete_object(Bucket=bucket, Key=item['Key'])
                 s3.delete_bucket(Bucket=bucket)
                 report['cleanup'] = True
+        except Exception as exc:
+            report['cleanup_error_type'] = type(exc).__name__
+            if 'error_type' not in report:
+                raise
         finally:
             (ROOT / 'results').mkdir(exist_ok=True)
             (ROOT / 'results/s3-crash-probe.json').write_text(json.dumps(report, indent=2) + '\n')

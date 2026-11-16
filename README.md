@@ -35,7 +35,9 @@ SQS·Kafka의 추가 프로세스 종료·동시 소비자·지속 유입 시나
 - SQS·S3 연결은 코드에서 `https://127.0.0.1:9298`로 고정합니다. 실제 AWS endpoint로 바꾸는 옵션은 없습니다.
 - 에뮬레이터가 생성한 `.runtime/emulator/9298/`의 테스트 자격증명과 CA만 사용합니다. 실제 AWS 프로필이나 credential chain을 사용하지 않습니다.
 - `queue-reliability-emulator`와 `queue-reliability-kafka`는 이 실습 전용입니다. 기존 `aws-emulator-local`은 중지하지 않습니다. 저장소 이름 변경 후에도 컨테이너 이름과 소유권 label은 기존 세션과의 호환성을 위해 유지합니다.
-- 기존 동명 컨테이너는 소유 label을 확인합니다. 실행 중인 실습 컨테이너가 있으면 전체 실행은 거부합니다.
+- 기존 동명 컨테이너는 소유 label을 확인합니다. 기존 에뮬레이터나 실행 중인 Kafka가 있으면 전체 실행은 거부합니다.
+- 실행·시작·중지 스크립트는 사용자 공통 파일 잠금(`$XDG_CACHE_HOME/local-aws-lab/9298-19092.lock`, 기본 `~/.cache/`)을 사용합니다. 다른 checkout에서도 같은 캐시 경로를 사용하면 중복 실행은 종료 코드 75로 거부됩니다. 잠금 파일은 지우지 마세요. 프로세스 종료 시 잠금이 해제되므로 파일이 남아 있어도 재실행할 수 있습니다.
+- 전체 실행과 S3 실행기는 자신이 시작한 컨테이너를 정리하며, 정리 실패는 성공으로 처리하지 않습니다. 직접 실행한 Python CLI와 Docker 명령은 잠금에 참여하지 않으므로 통합 실행과 병행하지 마세요.
 - AWS Emulator는 종료 시 모든 메모리 리소스가 없어집니다. **이 전용 인스턴스에는 보관할 데이터나 다른 작업을 넣지 마세요.**
 - 포트는 localhost에만 공개합니다. telemetry OFF. 인증서 검증을 끄지 않습니다.
 - Kafka는 단일 브로커, RF1, heap512MiB, 메모리1.5GiB, 3개 테스트 파티션입니다. 컨테이너는 재시작 가능하도록 남습니다.
@@ -52,7 +54,7 @@ SQS·Kafka의 추가 프로세스 종료·동시 소비자·지속 유입 시나
 
 ./kafka-start.sh
 .venv/bin/python lab.py kafka --count 500
-docker stop queue-reliability-kafka
+./scripts/kafka-stop.sh
 ```
 
 두 실습은 자원 절약을 위해 순차 실행합니다. count는 10~900이며 10% 중복 이벤트가 추가됩니다.
