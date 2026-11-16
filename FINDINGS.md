@@ -69,4 +69,6 @@ Python 최적화 모드(-O)는 이번 테스트 하네스에서 지원하지 않
 
 E2E는 admission 후 송신 시각부터 effect+ACK 완료까지로, admission 대기 시간은 제외한다. timeline은 애플리케이션 outstanding이며 broker queue age가 아니다. backpressure credit은 메모리 기반이므로 producer 재시작을 견디는 영속 admission 설계를 증명하지 않는다. 반복 benchmark·외부 부작용 outbox·실제 AWS 검증은 아직 하지 않았다.
 
-통합 CI 작업을 추가했다. 실제 CI 실행 상태는 GitHub Actions에서 확인해야 하며 위 수치는 Mac mini 로컬 관측이다. AWS Emulator LTS/latest 빌드의 실제 버전을 기록하고 예상 버전 1.0.367 불일치 시 시작을 거부한다. 이는 binary digest 고정과는 다르다.
+통합 CI 작업을 추가했다. 실제 CI 실행 상태는 GitHub Actions에서 확인해야 하며 위 수치는 Mac mini 로컬 관측이다. AWS Emulator LTS/latest 빌드의 실제 버전을 기록하고 당시 예상 버전 1.0.367 불일치 시 시작을 거부하도록 했다. 이는 binary digest 고정과는 다르다.
+
+2026-11-16에는 공식 LTS/latest가 1.0.385로 변경되어 CI가 버전 검사에서 중단됐다. 전용 이미지를 새로 빌드하고 1.0.385에서 전체 고급 시나리오를 로컬 재검증한 뒤 기대 버전을 갱신했다. 위 1.0.367 수치는 당시 관측 기록으로 유지한다.

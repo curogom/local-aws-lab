@@ -50,7 +50,7 @@ No screenshots have yet been taken for Part 2. Reports are synthetic observation
 
 ## Verification record
 
-On 2026-11-16 KST (2026-11-15 UTC), the modified working tree based on `23ad6b1` passed `./run-all.sh --advanced`, including the existing SQS/Kafka scenarios and the new 10-case S3 harness. Final unit suite: 12 passing tests (7 S3 + 5 existing). Python compilation, Bash syntax, and `git diff --check` passed. Runtime: Darwin ARM64, Python 3.14.6, boto3/botocore 1.44.3, Kafka 4.4.0, AWS Emulator 1.0.367. The runner used deliberately invalid AWS profile/endpoint environment variables to check local isolation. This is local evidence; CI for these new commits has not run because nothing has been pushed.
+On 2026-11-16 KST (2026-11-15 UTC), the modified working tree based on `23ad6b1` passed `./run-all.sh --advanced`, including the existing SQS/Kafka scenarios and the new 10-case S3 harness. Final unit suite: 12 passing tests (7 S3 + 5 existing). Python compilation, Bash syntax, and `git diff --check` passed. Runtime: Darwin ARM64, Python 3.14.6, boto3/botocore 1.44.3, Kafka 4.4.0, AWS Emulator 1.0.367. The runner used deliberately invalid AWS profile/endpoint environment variables to check local isolation. This is local evidence; at that time CI had not run because nothing had been pushed.
 
 ## Independent rerun and process-crash validation
 
@@ -65,4 +65,8 @@ The parent checks the actual signal return code, observes S3 before retry, start
 
 `results/s3-crash-probe.json` records the observations; `examples/results/s3-crash-probe.json` is the captured passing result. The random synthetic bucket is removed by the parent after both cases. The standalone runner then stops its dedicated 9298 instance. The existing 9297 instance remains running. These observations extend the earlier exception-only scope; they do not establish production durability or network-fault behavior.
 
-The expanded `./run-all.sh --advanced` also passed on 2026-11-15 at 15:10 UTC (2026-11-16 KST), including both SIGKILL cases, existing SQS/Kafka scenarios and all 12 unit tests. This rerun used the already-installed virtual environment and Docker build cache, not a clean-machine installation. No remote CI or cloud AWS execution was performed.
+The expanded `./run-all.sh --advanced` also passed on 2026-11-15 at 15:10 UTC (2026-11-16 KST), including both SIGKILL cases, existing SQS/Kafka scenarios and all 12 unit tests. This rerun used the already-installed virtual environment and Docker build cache, not a clean-machine installation. That rerun did not include remote CI or cloud AWS execution.
+
+## Emulator version refresh
+
+On 2026-11-16 UTC, the first public CI run at `572cc1c` passed the unit job but stopped before integration scenarios because official LTS/latest had changed from 1.0.367 to 1.0.385. The version guard correctly rejected this drift. A fresh ARM64 image was built from the official package, and `EXPECTED_EMULATOR_VERSION=1.0.385 ./run-all.sh --advanced` passed locally, including all 12 unit tests, S3 basic and real SIGKILL probes, and SQS/Kafka scenarios. The default expected version was then updated to 1.0.385. Earlier sample results remain historical 1.0.367 evidence; this change does not make the latest download immutable.
