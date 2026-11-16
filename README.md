@@ -1,7 +1,9 @@
-# Queue Reliability Lab
+# Local AWS Lab
 
-SQS와 Kafka에서 **결과 저장 후 ACK/offset commit 전에 실패하면 무엇이 남는가**를 살펴보는 작은 실습입니다.
-AWS Emulator의 SQS와 실제 Apache Kafka를 사용합니다. 처리량 순위나 상용 대용량 운영 검증이 아닙니다.
+AWS 리소스의 동작과 실패 후 복구를 로컬에서 살펴보는 시리즈 실습 저장소입니다.
+현재 AWS Emulator의 SQS·S3와 별도 컨테이너의 실제 Apache Kafka를 사용합니다.
+1편은 결과 저장 후 ACK/offset commit 전 실패와 재처리를, 2편은 S3 업로드·파일 처리 중 실패와 재시도를 다룹니다.
+실제 AWS 계정에 접속하지 않으며, 처리량 순위나 상용 대용량 운영을 검증하는 실험은 아닙니다. DynamoDB와 서비스 간 연계는 후속 편의 계획이며 아직 구현된 기능이 아닙니다.
 
 ## 빠른 시작
 
@@ -11,16 +13,16 @@ Docker VM은 2 CPU/4 GiB로 시험했으며, 다른 무거운 작업과 병행�
 최초 실행에는 공식 이미지/패키지와 Python 의존성을 다운로드할 인터넷이 필요합니다.
 
 ```bash
-git clone https://github.com/curogom/queue-reliability-lab.git
-cd queue-reliability-lab
+git clone https://github.com/curogom/local-aws-lab.git
+cd local-aws-lab
 ./setup.sh
 ./run-all.sh
 ```
 
 `setup.sh`는 로컬 `.venv`와 작업 디렉터리를 만듭니다.
-`run-all.sh`는 단위 테스트 → 전용 AWS Emulator 시작 → SQS/한도 관측 → 에뮬레이터 정지 → Kafka 테스트 → Kafka 정지 순서로 실행합니다.
+`run-all.sh`는 단위 테스트 → 전용 AWS Emulator 시작 → SQS/한도 관측 → S3 기본·프로세스 종료 검증 → 에뮬레이터 정지 → Kafka 테스트 → Kafka 정지 순서로 실행합니다.
 실패한 검증은 0이 아닌 종료 코드를 반환합니다.
-실제 프로세스 종료·동시 소비자·지속 유입까지 실행하려면 다음 명령을 사용합니다(POSIX 환경).
+SQS·Kafka의 추가 프로세스 종료·동시 소비자·지속 유입 시나리오까지 실행하려면 다음 명령을 사용합니다(POSIX 환경).
 
 ```bash
 ./run-all.sh --advanced
@@ -30,9 +32,9 @@ cd queue-reliability-lab
 
 ### 격리와 안전
 
-- SQS 연결은 코드에서 `https://127.0.0.1:9298`로 고정합니다. 실제 AWS endpoint로 바꾸는 옵션은 없습니다.
+- SQS·S3 연결은 코드에서 `https://127.0.0.1:9298`로 고정합니다. 실제 AWS endpoint로 바꾸는 옵션은 없습니다.
 - 에뮬레이터가 생성한 `.runtime/emulator/9298/`의 테스트 자격증명과 CA만 사용합니다. 실제 AWS 프로필이나 credential chain을 사용하지 않습니다.
-- `queue-reliability-emulator`와 `queue-reliability-kafka`는 이 실습 전용입니다. 기존 `aws-emulator-local`은 중지하지 않습니다.
+- `queue-reliability-emulator`와 `queue-reliability-kafka`는 이 실습 전용입니다. 기존 `aws-emulator-local`은 중지하지 않습니다. 저장소 이름 변경 후에도 컨테이너 이름과 소유권 label은 기존 세션과의 호환성을 위해 유지합니다.
 - 기존 동명 컨테이너는 소유 label을 확인합니다. 실행 중인 실습 컨테이너가 있으면 전체 실행은 거부합니다.
 - AWS Emulator는 종료 시 모든 메모리 리소스가 없어집니다. **이 전용 인스턴스에는 보관할 데이터나 다른 작업을 넣지 마세요.**
 - 포트는 localhost에만 공개합니다. telemetry OFF. 인증서 검증을 끄지 않습니다.
