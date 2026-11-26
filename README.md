@@ -1,9 +1,22 @@
 # Local AWS Lab
 
-AWS 리소스의 동작과 실패 후 복구를 로컬에서 살펴보는 시리즈 실습 저장소입니다.
-현재 AWS Emulator의 SQS·S3와 별도 컨테이너의 실제 Apache Kafka를 사용합니다.
-1편은 결과 저장 후 ACK/offset commit 전 실패와 재처리를, 2편은 S3 업로드·파일 처리 중 실패와 재시도를 다룹니다.
-실제 AWS 계정에 접속하지 않으며, 처리량 순위나 상용 대용량 운영을 검증하는 실험은 아닙니다. DynamoDB와 서비스 간 연계 및 초기화 후 재현은 별도 [5편 실습](part5/)에서 다룹니다.
+AWS 계정에 연결하지 않고 AWS Emulator로 SQS·S3·DynamoDB를 실습한 5편 시리즈입니다. Kafka와 PostgreSQL은 해당 회차에서 별도로 실행한 구성요소입니다. 로컬 관측 결과는 실제 AWS의 권한, 서비스 한도, 처리량 또는 운영 환경의 동작을 보장하지 않습니다.
+
+## 시리즈 읽기 가이드
+
+[한국어 시리즈 전체 보기 · KeyFlow](https://www.keyflow.me/@curogom/series/2026-11-15-aws-emulator)
+
+처음이라면 1편부터 순서대로 읽어보세요. S3 알림 누락과 보정을 실습하려면 4편에서 정상·보정 경로를 먼저 읽고, 5편의 실행기로 직접 확인하면 됩니다.
+
+| 회차 | 발행 글 | 어디에 주목할까요? | 공개 저장소에서 실행 |
+|---|---|---|---|
+| [1. SQS와 Kafka 장애 복구](part1/README.md) | [한국어 · KeyFlow](https://www.keyflow.me/@curogom/post/2026-11-15-%EB%A1%9C%EC%BB%AC%EC%97%90%EC%84%9C-%EC%8B%A4%ED%96%89%ED%95%98%EB%8A%94-aws-%EC%8B%A4%ED%97%98%EC%8B%A4-1-sqs%EC%99%80-kafka-%EC%9E%A5%EC%95%A0-%EB%B3%B5%EA%B5%AC) · [English · Medium](https://curogom.dev/running-aws-locally-part-1-sqs-and-kafka-crash-recovery-69736e38363c) | DB 저장, SQS ACK, Kafka offset commit의 순서와 재처리 결과 | 루트 실행기 |
+| [2. S3 파일 처리와 재시도](part2/README.md) | [한국어 · KeyFlow](https://www.keyflow.me/@curogom/post/2026-11-17-%EB%A1%9C%EC%BB%AC%EC%97%90%EC%84%9C-%EC%8B%A4%ED%96%89%ED%95%98%EB%8A%94-aws-%EC%8B%A4%ED%97%98%EC%8B%A4-2-s3-%ED%8C%8C%EC%9D%BC-%EC%B2%98%EB%A6%AC-%ED%8C%8C%EC%9D%B4%ED%94%84%EB%9D%BC%EC%9D%B8%EA%B3%BC-%EC%9E%AC%EC%8B%9C%EB%8F%84) · [English · Medium](https://curogom.dev/running-aws-locally-part-2-an-s3-file-processing-pipeline-and-retries-7b0fc9570c1a) | 재시도 전후 출력 객체의 유무와 SHA-256 | 루트의 S3 전용 실행기 |
+| [3. RAG 문서 중복 처리](part3/README.md) | [한국어 · KeyFlow](https://www.keyflow.me/@curogom/post/2026-11-19-%EB%A1%9C%EC%BB%AC%EC%97%90%EC%84%9C-%EC%8B%A4%ED%96%89%ED%95%98%EB%8A%94-aws-%EC%8B%A4%ED%97%98%EC%8B%A4-3-rag%EC%97%90-%EA%B0%99%EC%9D%80-%EB%AC%B8%EC%84%9C%EB%A5%BC-%EB%91%90-%EB%B2%88-%EB%84%A3%EB%8A%94%EB%8B%A4%EB%A9%B4) · [English · Medium](https://curogom.dev/running-aws-locally-part-3-what-if-a-rag-pipeline-receives-the-same-document-twice-8e7b714c18a3) | 동일 작업과 새 문서 버전의 구분, 작업 소유권과 검색 노출 조건 | 읽기 가이드 · 실행 코드 미포함 |
+| [4. S3 알림 누락과 보정](part4/README.md) | [한국어 · KeyFlow](https://www.keyflow.me/@curogom/post/2026-11-24-%EB%A1%9C%EC%BB%AC%EC%97%90%EC%84%9C-%EC%8B%A4%ED%96%89%ED%95%98%EB%8A%94-aws-%EC%8B%A4%ED%97%98%EC%8B%A4-4-s3-%EC%95%8C%EB%A6%BC%EC%9D%B4-%EB%B9%A0%EC%A7%84-%ED%8C%8C%EC%9D%BC%EC%9D%80-%EC%96%B4%EB%96%BB%EA%B2%8C-%EC%B0%BE%EC%9D%84%EA%B9%8C%EC%9A%94) · [English · Medium](https://curogom.dev/running-aws-locally-part-4-how-do-you-find-a-file-when-its-s3-notification-is-missing-fb8affe5dd7c) | 실제 알림으로 처리되는 경로와 원본을 대조하는 보정 경로 | 읽기 가이드 · 5편에서 시나리오 재실행 |
+| [5. 초기화 후 재현](part5/README.md) | [한국어 · KeyFlow](https://www.keyflow.me/ko/@curogom/post/2026-11-26-%EB%A1%9C%EC%BB%AC%EC%97%90%EC%84%9C-%EC%8B%A4%ED%96%89%ED%95%98%EB%8A%94-aws-%EC%8B%A4%ED%97%98%EC%8B%A4-5-%EC%97%90%EB%AE%AC%EB%A0%88%EC%9D%B4%ED%84%B0%EB%A5%BC-%EB%B9%84%EC%9A%B0%EA%B3%A0-%EB%8B%A4%EC%8B%9C-%EB%8F%8C%EB%A0%A4%EB%8F%84-%EA%B0%99%EC%9D%80-%EA%B2%B0%EA%B3%BC%EA%B0%80-%EB%82%98%EC%98%AC%EA%B9%8C%EC%9A%94) · [English · Medium](https://curogom.dev/running-aws-locally-part-5-do-you-get-the-same-result-after-a-clean-start-aae142411f13) | 빈 시작 상태, 시나리오별 판정, 두 호스트 간 결과 일치 | 독립 실행 패키지 |
+
+루트 빠른 시작은 1·2편을 위한 것입니다. 5편은 별도 에뮬레이터 버전과 실행 절차를 사용하므로 [5편 README](part5/README.md)를 따라가세요.
 
 ## 빠른 시작
 

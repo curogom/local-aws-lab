@@ -1,5 +1,15 @@
 # 로컬에서 실행하는 AWS 실험실 5. 초기화 후 같은 실험으로 확인하기
 
+[시리즈 목차](../README.md#시리즈-읽기-가이드) · [한국어 · KeyFlow](https://www.keyflow.me/ko/@curogom/post/2026-11-26-%EB%A1%9C%EC%BB%AC%EC%97%90%EC%84%9C-%EC%8B%A4%ED%96%89%ED%95%98%EB%8A%94-aws-%EC%8B%A4%ED%97%98%EC%8B%A4-5-%EC%97%90%EB%AE%AC%EB%A0%88%EC%9D%B4%ED%84%B0%EB%A5%BC-%EB%B9%84%EC%9A%B0%EA%B3%A0-%EB%8B%A4%EC%8B%9C-%EB%8F%8C%EB%A0%A4%EB%8F%84-%EA%B0%99%EC%9D%80-%EA%B2%B0%EA%B3%BC%EA%B0%80-%EB%82%98%EC%98%AC%EA%B9%8C%EC%9A%94) · [English · Medium](https://curogom.dev/running-aws-locally-part-5-do-you-get-the-same-result-after-a-clean-start-aae142411f13)
+
+## 무엇을 보면 좋을까요?
+
+- S3 버킷·SQS 큐·DynamoDB 테이블이 각각 0개인 상태에서 시작했는지 확인합니다.
+- 각 실행에서 검사 6개가 먼저 통과해야 합니다. 그 뒤 최종 결과의 키·바이트 수·SHA-256·처리 경로를 비교합니다.
+- 에뮬레이터 버전이 다르면 시나리오를 시작하지 않는다는 점과, 두 장비의 비교가 제3자의 독립 재현이나 실제 AWS 검증은 아니라는 점을 구분합니다.
+
+이전: [4편 S3 알림 누락과 보정](../part4/README.md)
+
 4회차 S3 → SQS → DynamoDB 실습을 **새 에뮬레이터 두 개**에서 순차 실행한다. 2·3회차 전체, 실제 AWS, CI, 성능 또는 장애 복구 시간의 검증은 아니다. `scenario.py`는 이전 실습을 복사한 독립 실행용 스냅샷이다.
 
 ## 실행

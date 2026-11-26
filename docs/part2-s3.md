@@ -1,5 +1,7 @@
 # Part 2 — S3 upload and file-processing retries
 
+[Part 2 reading guide and published articles](../part2/README.md).
+
 This implements the published series promise: **S3 file-processing pipelines and failures/retries after upload**. S3-to-SQS notifications belong to Part 4; durable ownership with DynamoDB belongs to Part 3. No automated notification, durable claim, exactly-once execution, or production performance is claimed here.
 
 ## Run
