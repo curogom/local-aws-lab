@@ -80,8 +80,8 @@ Kafka의 로컬 포트는 `19092`입니다. 이미 사용 중이면 다른 서�
 
 AWS Emulator **1.0.367**에서 큐당 1,000개 메시지 사전 적재 후 추가 전송에 `OverLimit`이 발생했습니다.
 이는 **실제 AWS SQS 한도가 아닙니다.** `probe_limit.py`로 별도 확인하며 향후 버전에서 달라질 수 있습니다.
-기본 실습은 550개로 제한합니다. Dockerfile은 AWS 공식 `LTS/latest` 패키지를 받으므로 새 빌드 시 버전이 달라질 수 있습니다.
-시작 스크립트는 재검증한 예상 버전 `1.0.385`과 다르면 실행을 거부합니다. 공식 배포 URL은 latest이므로 바이너리 자체를 영구 고정한 것은 아닙니다. 버전 업데이트 시 동작을 검토하고 `EXPECTED_EMULATOR_VERSION`을 명시적으로 바꾸세요. 실행 버전·이미지 ID는 `results/environment.json`에 기록합니다. 저장된 관측 결과는 `examples/results/`, 설명은 `FINDINGS.md`에 있습니다.
+기본 실습은 550개로 제한합니다. 루트 Dockerfile은 AWS 공식 RPM `1.0.385`를 버전 URL과 아키텍처별 SHA-256으로 고정합니다.
+시작 스크립트는 예상 버전과 다르면 실행을 거부합니다. 버전을 올릴 때는 Dockerfile의 패키지 버전과 두 체크섬, 시작 스크립트의 기본 기대값을 함께 변경하고 통합 테스트를 다시 실행하세요. 실행 버전과 이미지 ID는 `results/environment.json`에 기록합니다. 저장된 관측 결과는 `examples/results/`, 설명은 `FINDINGS.md`에 있습니다. [5회차 실습](part5/)은 별도로 `1.0.490`을 사용합니다.
 
 ## 공식 근거
 

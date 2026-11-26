@@ -11,7 +11,7 @@ This implements the published series promise: **S3 file-processing pipelines and
 
 This starts/stops only the dedicated `queue-reliability-emulator` on TLS port 9298. It refuses an existing session. The always-on instance at 9297 is untouched. The container is ephemeral and must not contain other work. The SDK and presigned HTTP client use only explicit emulator credentials, the emulator CA, no proxy, and a fixed loopback endpoint. Redirects are rejected. Presigned URLs/credentials are not persisted in reports.
 
-`results/s3-pipeline.json` contains synthetic case results. `examples/results/s3-pipeline.json` is a captured successful run on AWS Emulator 1.0.367 / ARM64 Mac. As elsewhere in this repo, the Dockerfile's `LTS/latest` download is not immutable; the version guard fails closed on drift. No AWS account was used.
+`results/s3-pipeline.json` contains synthetic case results. `examples/results/s3-pipeline.json` is a captured successful run on AWS Emulator 1.0.367 / ARM64 Mac. The root Dockerfile now pins its official RPM by version and architecture-specific SHA-256; the startup version guard still fails closed on drift. No AWS account was used.
 
 ## Observed cases
 
@@ -72,7 +72,7 @@ The expanded `./run-all.sh --advanced` also passed on 2026-11-15 at 15:10 UTC (2
 
 ## Emulator version refresh
 
-On 2026-11-16 UTC, the first public CI run at `572cc1c` passed the unit job but stopped before integration scenarios because official LTS/latest had changed from 1.0.367 to 1.0.385. The version guard correctly rejected this drift. A fresh ARM64 image was built from the official package, and `EXPECTED_EMULATOR_VERSION=1.0.385 ./run-all.sh --advanced` passed locally, including all 12 unit tests, S3 basic and real SIGKILL probes, and SQS/Kafka scenarios. The default expected version was then updated to 1.0.385. Earlier sample results remain historical 1.0.367 evidence; this change does not make the latest download immutable.
+On 2026-11-16 UTC, the first public CI run at `572cc1c` passed the unit job but stopped before integration scenarios because official LTS/latest had changed from 1.0.367 to 1.0.385. The version guard correctly rejected this drift. A fresh ARM64 image was built from the official package, and `EXPECTED_EMULATOR_VERSION=1.0.385 ./run-all.sh --advanced` passed locally, including all 12 unit tests, S3 basic and real SIGKILL probes, and SQS/Kafka scenarios. The default expected version was then updated to 1.0.385. Earlier sample results remain historical 1.0.367 evidence. On 2026-11-26, `LTS/latest` drifted again to 1.0.625. The root Dockerfile was updated to fetch the versioned 1.0.385 RPM directly and check its SHA-256 rather than continue tracking the rolling URL.
 
 ## Failure-path regression coverage
 

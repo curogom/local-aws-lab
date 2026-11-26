@@ -44,7 +44,13 @@ if workload == os.environ.get('GATE_WORKLOAD'):
         time.sleep(.01)
 if workload == os.environ.get('FAIL_WORKLOAD'): sys.exit(42)
 ''')
-        self.executable('bin/curl', 'import sys\nsys.exit(0)\n')
+        self.executable('bin/curl', '''
+from pathlib import Path
+import sys
+ca = Path(sys.argv[sys.argv.index('--cacert') + 1])
+if not ca.read_text():
+    sys.exit(1)
+''')
         self.executable('bin/docker', '''
 import json, os, pathlib, sys
 root = pathlib.Path(os.environ['FIXTURE'])
@@ -66,6 +72,10 @@ elif command == 'container':
 elif command in ('run', 'start'):
     name = args[args.index('--name') + 1] if command == 'run' else args[-1]
     state[name] = {'running': True, 'owned': True}
+    if name.endswith('emulator'):
+        ca = root / '.runtime/emulator/9298/ca.pem'
+        ca.parent.mkdir(parents=True, exist_ok=True)
+        ca.write_text('fake test CA')
 elif command == 'stop':
     name = args[-1]
     if os.environ.get('FAIL_STOP') == name: sys.exit(9)

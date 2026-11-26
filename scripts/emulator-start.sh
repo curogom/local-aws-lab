@@ -13,8 +13,9 @@ if [ "$(uname -s)" = Linux ]; then set -- --user "$(id -u):$(id -g)"; fi
 docker run "$@" -d --rm --name queue-reliability-emulator --label queue-reliability-lab=true \
  --memory=2g --memory-swap=2g -p 127.0.0.1:9298:9298 \
  -v "$PWD/.runtime/emulator:/home/emulator/.aws/emulator" queue-reliability-emulator:local
+ca=.runtime/emulator/9298/ca.pem
 for i in $(seq 30); do
- if curl -sf --cacert .runtime/emulator/9298/ca.pem https://127.0.0.1:9298/__admin/health; then
+ if [ -s "$ca" ] && curl -sf --cacert "$ca" https://127.0.0.1:9298/__admin/health; then
   actual=$(docker exec queue-reliability-emulator rpm -q --qf '%{VERSION}' aws-emulator)
   expected=${EXPECTED_EMULATOR_VERSION:-1.0.385}
   if [ "$actual" != "$expected" ]; then

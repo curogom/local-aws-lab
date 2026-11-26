@@ -1,8 +1,19 @@
-FROM public.ecr.aws/amazonlinux/amazonlinux:2023-minimal
-RUN arch="$(uname -m)"; case "$arch" in aarch64|x86_64) ;; *) exit 1;; esac \
- && curl -fsSL "https://downloads.aws.com/aws-emulator/packages/aws-emulator/LTS/latest/aws-emulator-${arch}.rpm" -o /tmp/emulator.rpm \
- && rpm -i /tmp/emulator.rpm && rm /tmp/emulator.rpm \
- && mkdir -p /home/emulator && chown 1000 /home/emulator
+FROM public.ecr.aws/amazonlinux/amazonlinux:2023-minimal@sha256:75a2d4226d9b98c914d7eed878a03bef4f365ad548be5d28d464ccba504cec79
+# Keep the validated LTS package and both architecture checksums together.
+RUN set -eu; \
+    version=1.0.385; arch="$(uname -m)"; \
+    case "$arch" in \
+      aarch64) checksum=e2f01620e9f4e8c37c0ce7f32381fde3ffb7e8270331c8c23de2ec877b6a9043 ;; \
+      x86_64) checksum=2b2b5031e559d74c7a4154b11056be3a57716a177cd796cf058eebd91a6870d7 ;; \
+      *) printf 'Unsupported emulator architecture: %s\n' "$arch" >&2; exit 1 ;; \
+    esac; \
+    curl -fsSL --proto '=https' --proto-redir '=https' \
+      "https://downloads.aws.com/aws-emulator/packages/aws-emulator/LTS/aws-emulator-${version}-1-${arch}.rpm" -o /tmp/emulator.rpm; \
+    printf '%s  %s\n' "$checksum" /tmp/emulator.rpm | sha256sum -c -; \
+    rpm -i /tmp/emulator.rpm; \
+    rm /tmp/emulator.rpm; \
+    mkdir -p /home/emulator; \
+    chown 1000 /home/emulator
 USER 1000
 ENV HOME=/home/emulator EMULATOR_TELEMETRY=off
 ENTRYPOINT ["aws-emulator", "-b", "0.0.0.0", "-p", "9298", "--telemetry", "off"]
