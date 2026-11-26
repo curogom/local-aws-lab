@@ -1,0 +1,121 @@
+{
+  "emulator_version": "1.0.490",
+  "image_id": "sha256:e5347e80345c780840f586f0f527f948fa40e7fe2db2d03f3e298600f945205c",
+  "endpoint": "https://127.0.0.1:19498",
+  "host": "Darwin 25.5.0 arm64",
+  "aws_cli": "aws-cli/2.35.3 Python/3.14.5 Darwin/25.5.0 source/arm64",
+  "lab_source_sha256": "5a0d1f6bdb2088888d9c91ecb341566d3eb1a4da7d43792266181d987eb1c246",
+  "run_id": "b2201801160a",
+  "notification_configuration": "accepted",
+  "automatic_probe": {
+    "observed": true,
+    "observations": [
+      {
+        "key": "incoming/normal.txt",
+        "outcome": "committed",
+        "event_source": "aws:s3",
+        "message_id": "84e0571e-b713-4763-9147-f832e5a70eb9"
+      }
+    ],
+    "control_events": 1,
+    "wait_budget_seconds": 8,
+    "manual_send_before_probe": false,
+    "reconcile_before_probe": false
+  },
+  "gap": {
+    "simulated_by": "put-object with notification disabled",
+    "observations_before_reconciliation": [],
+    "row_before_reconciliation": null,
+    "repair": [
+      {
+        "key": "incoming/gap.txt",
+        "outcome": "committed"
+      }
+    ],
+    "row_after_repair": {
+      "sha256": {
+        "S": "813478debffe278b6a402348cb696f48d506a965fd2364ccc5ed6a2ba4eb5e9d"
+      },
+      "bytes": {
+        "N": "17"
+      },
+      "job_id": {
+        "S": "aws-lab-p4-b2201801160a/incoming/gap.txt"
+      },
+      "source": {
+        "S": "reconciler"
+      }
+    }
+  },
+  "late_replays": {
+    "injected": [
+      "c79629ab-9a82-4206-b550-84bea6a7fdfc",
+      "f52df51a-2c22-4a29-ab8d-369091078757"
+    ],
+    "observed": [
+      {
+        "key": "incoming/gap.txt",
+        "outcome": "duplicate",
+        "event_source": null,
+        "message_id": "c79629ab-9a82-4206-b550-84bea6a7fdfc"
+      },
+      {
+        "key": "incoming/gap.txt",
+        "outcome": "duplicate",
+        "event_source": null,
+        "message_id": "f52df51a-2c22-4a29-ab8d-369091078757"
+      }
+    ],
+    "row_unchanged": true
+  },
+  "missing_reference": {
+    "injected": "dad9457b-e105-4d75-aab9-42fca5a0ab4d",
+    "observed": [
+      {
+        "key": "incoming/missing.txt",
+        "outcome": "missing_object",
+        "event_source": null,
+        "message_id": "dad9457b-e105-4d75-aab9-42fca5a0ab4d"
+      }
+    ],
+    "row": null
+  },
+  "final_rows": [
+    {
+      "sha256": {
+        "S": "813478debffe278b6a402348cb696f48d506a965fd2364ccc5ed6a2ba4eb5e9d"
+      },
+      "bytes": {
+        "N": "17"
+      },
+      "job_id": {
+        "S": "aws-lab-p4-b2201801160a/incoming/gap.txt"
+      },
+      "source": {
+        "S": "reconciler"
+      }
+    },
+    {
+      "bytes": {
+        "N": "15"
+      },
+      "source": {
+        "S": "queue"
+      },
+      "sha256": {
+        "S": "95e36108a3376b0f5082876ddda6576215f5308556762953b0caf6fb3a9b7181"
+      },
+      "job_id": {
+        "S": "aws-lab-p4-b2201801160a/incoming/normal.txt"
+      }
+    }
+  ],
+  "checks": {
+    "normal_payload_matches": true,
+    "gap_absent_before_reconciliation": true,
+    "gap_repaired_from_source": true,
+    "two_injected_late_events_deduplicated": true,
+    "missing_object_not_recorded": true,
+    "exactly_two_result_rows": true
+  }
+}

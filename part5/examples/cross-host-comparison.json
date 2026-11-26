@@ -1,0 +1,101 @@
+{
+  "scope": "Local Apple Silicon systems and distinct emulator images; not production AWS.",
+  "source_sha256": {
+    "runner_sha256": "131c0effb132f6d43612f75ec31421d812b31ed8545b1782fa3199f5ad3193fe",
+    "scenario_sha256": "5a0d1f6bdb2088888d9c91ecb341566d3eb1a4da7d43792266181d987eb1c246"
+  },
+  "aws_emulator_version": "1.0.490",
+  "aws_cli_version": "2.35.3",
+  "hosts": [
+    {
+      "name": "MacBook / Docker Desktop",
+      "session": "3704cd467c92",
+      "image_id": "sha256:e5347e80345c780840f586f0f527f948fa40e7fe2db2d03f3e298600f945205c",
+      "runs": [
+        {
+          "id": "c27c3d626286",
+          "initial": [
+            0,
+            0,
+            0
+          ],
+          "checks_passed": 6,
+          "cleaned": true
+        },
+        {
+          "id": "e591a8aaf7aa",
+          "initial": [
+            0,
+            0,
+            0
+          ],
+          "checks_passed": 6,
+          "cleaned": true
+        }
+      ],
+      "wrong_version_session": "b43b2a3cafeb",
+      "wrong_version_blocked": 2
+    },
+    {
+      "name": "Mac mini / Colima",
+      "session": "129a8cd7a124",
+      "image_id": "sha256:1b11b43fa1f852214e8d3722c177f74b4a19c68ed7339bddf57bc04395e0c20c",
+      "runs": [
+        {
+          "id": "9c903df46691",
+          "initial": [
+            0,
+            0,
+            0
+          ],
+          "checks_passed": 6,
+          "cleaned": true
+        },
+        {
+          "id": "2214b92ae38a",
+          "initial": [
+            0,
+            0,
+            0
+          ],
+          "checks_passed": 6,
+          "cleaned": true
+        }
+      ],
+      "wrong_version_session": "4e9ba9993cb0",
+      "wrong_version_blocked": 2
+    }
+  ],
+  "initial_count_order": [
+    "s3_buckets",
+    "sqs_queues",
+    "dynamodb_tables"
+  ],
+  "normalized_invariants_equal_across_all_four_runs": true,
+  "normalized_invariants": {
+    "automatic_s3_event": true,
+    "gap_repaired_from_s3": true,
+    "duplicate_messages": 2,
+    "missing_result_absent": true,
+    "rows": {
+      "incoming/gap.txt": {
+        "bytes": "17",
+        "sha256": "813478debffe278b6a402348cb696f48d506a965fd2364ccc5ed6a2ba4eb5e9d",
+        "source": "reconciler"
+      },
+      "incoming/normal.txt": {
+        "bytes": "15",
+        "sha256": "95e36108a3376b0f5082876ddda6576215f5308556762953b0caf6fb3a9b7181",
+        "source": "queue"
+      }
+    },
+    "assertions": {
+      "normal_payload_matches": true,
+      "gap_absent_before_reconciliation": true,
+      "gap_repaired_from_source": true,
+      "two_injected_late_events_deduplicated": true,
+      "missing_object_not_recorded": true,
+      "exactly_two_result_rows": true
+    }
+  }
+}
